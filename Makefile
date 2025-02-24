@@ -69,9 +69,9 @@ check: format lint ## Check and fix code base according to Plone standards
 
 # Tests
 .PHONY: test
-test: $(BIN_FOLDER)/pytest ## run tests
+test: $(VENV_FOLDER) ## run tests
 	@uv run pytest
 
 .PHONY: test-cov
-test-cov: $(BIN_FOLDER)/pytest ## run tests
+test-cov: $(VENV_FOLDER) ## run tests
 	@uv run pytest --cov=collective.transmute --cov-report term-missing

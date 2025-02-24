@@ -39,7 +39,7 @@ jobs:
           id: py-versions
           run: uvx check-python-versions@latest .
 
-        - name: Check Python Versions
+        - name: Check typing
           if: ${{ success() || failure() }}
           id: typing
           run: |
