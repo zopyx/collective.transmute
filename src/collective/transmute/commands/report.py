@@ -52,7 +52,7 @@ def report(
     logger.info(f"- Found {len(src_files.content)} files to be processed")
     start = datetime.now()
     logger.debug(f"Report started at {start}")
-    asyncio.run(_create_report(src_files))
+    asyncio.run(_create_report(src_files.content))
     finish = datetime.now()
     logger.debug(f"Report ended at {finish}")
     logger.debug(f"Report took {(finish - start).seconds} seconds")
