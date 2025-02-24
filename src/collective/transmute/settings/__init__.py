@@ -10,6 +10,7 @@ def _settings() -> Dynaconf:
         envvar_prefix="PB_MIGRACAO",
         preload=[default],
         settings_files=["transmute.toml"],
+        merge_enabled=True,
     )
 
 
