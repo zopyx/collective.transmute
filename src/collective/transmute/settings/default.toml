@@ -1,0 +1,78 @@
+[config]
+debug=false
+report=1000
+
+[principals]
+default='Plone'
+remove=['admin']
+
+[pipeline]
+steps=[
+    'collective.transmute.steps.ids.process_ids',
+    'collective.transmute.steps.paths.process_paths',
+    'collective.transmute.steps.portal_type.process_type',
+    'collective.transmute.steps.review_state.process_review_state',
+    'collective.transmute.steps.default_page.process_default_page',
+    'collective.transmute.steps.creators.process_creators',
+    'collective.transmute.steps.constraints.process_constraints',
+    'collective.transmute.steps.blocks.process_blocks',
+    'collective.transmute.steps.blobs.process_blobs',
+    'collective.transmute.steps.sanitize.process_cleanup',
+]
+
+[review_state.filter]
+allowed=[
+    "published"
+]
+
+[paths.cleanup]
+"http://localhost:8080/Plone"= ""
+
+[paths.filter]
+allowed=[]
+
+[paths.portal_type]
+
+
+[default_page]
+keys_from_parent = [
+    "@id",
+    "@type",
+    "UID",
+    "id",
+]
+
+[sanitize]
+drop_keys = [
+    "layout",
+    "lock",
+    "nextPreviousEnabled",
+    "parent",
+]
+
+[types.'News Item']
+portal_type='News Item'
+blocks=[{"@type"= "title"}, {"@type"= "description"}]
+
+[types.'Document']
+portal_type='Document'
+blocks=[{"@type"= "title"}, {"@type"= "description"}]
+
+[types.'Event']
+portal_type='Event'
+blocks=[{"@type"= "title"}, {"@type"= "description"}]
+
+[types.File]
+portal_type="File"
+
+[types.Link]
+portal_type="Link"
+
+[types.Image]
+portal_type='Image'
+
+[types.Folder]
+portal_type = 'Document'
+
+[types.Collection]
+portal_type='Document'
