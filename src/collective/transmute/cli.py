@@ -1,4 +1,5 @@
 from collective.transmute.commands.report import app as app_report
+from collective.transmute.commands.sanity import app as app_sanity
 from collective.transmute.commands.settings import app as app_settings
 from collective.transmute.commands.transmute import app as app_transmute
 
@@ -19,6 +20,7 @@ def main(ctx: typer.Context):
 app.add_typer(app_transmute)
 app.add_typer(app_report)
 app.add_typer(app_settings)
+app.add_typer(app_sanity)
 
 
 def cli():

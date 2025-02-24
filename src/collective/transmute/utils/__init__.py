@@ -1,5 +1,5 @@
-from importlib import import_module
 from collective.transmute import _types as t
+from importlib import import_module
 
 
 def load_step(name: str) -> t.PipelineStep:
@@ -20,3 +20,15 @@ def load_all_steps(names: list[str]) -> tuple[t.PipelineStep]:
     for name in names:
         steps.append(load_step(name))
     return tuple(steps)
+
+
+def check_steps(names: list[str]) -> list[tuple[str, bool]]:
+    steps: list[tuple[str, bool]] = []
+    for name in names:
+        status = True
+        try:
+            load_step(name)
+        except RuntimeError:
+            status = False
+        steps.append((name, status))
+    return steps
