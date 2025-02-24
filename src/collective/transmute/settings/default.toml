@@ -50,6 +50,9 @@ drop_keys = [
     "parent",
 ]
 
+[types]
+processor='collective.transmute.steps.portal_type.default.processor'
+
 [types.'News Item']
 portal_type='News Item'
 blocks=[{"@type"= "title"}, {"@type"= "description"}]
@@ -76,3 +79,4 @@ portal_type = 'Document'
 
 [types.Collection]
 portal_type='Document'
+processor='collective.transmute.steps.portal_type.collection.processor'

@@ -33,8 +33,9 @@ async def _create_report(files: Iterator) -> Path:
         data["states"][review_state] += 1
         for creator in item.get("creators", []):
             data["creators"][creator] += 1
-    path = await file_utils.json_dump(data, "report.json")
-    logger.info(f" - Wrote report to {path.resolve()}")
+    report_path = Path("report.json").resolve()
+    path = await file_utils.json_dump(data, report_path)
+    logger.info(f" - Wrote report to {path}")
     return path
 
 

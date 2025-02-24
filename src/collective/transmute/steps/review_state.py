@@ -17,4 +17,5 @@ async def process_review_state(
     state_filter: dict[str, list] = config.review_state.get("filter", {})
     if not _is_valid_state(state_filter, review_state):
         yield None
-    yield item
+    else:
+        yield item

@@ -32,3 +32,20 @@ def check_steps(names: list[str]) -> list[tuple[str, bool]]:
             status = False
         steps.append((name, status))
     return steps
+
+
+def load_processor(type_: str, config: t.Settings) -> t.ItemProcessor:
+    """Load a processor for a given type."""
+    types_config = config.types
+    name = types_config.get(type_, {}).get("processor")
+    if not name:
+        name = types_config.processor
+    mod_name, func_name = name.rsplit(".", 1)
+    try:
+        mod = import_module(mod_name)
+    except ModuleNotFoundError:
+        raise RuntimeError(f"Function {name} not available") from None
+    func = getattr(mod, func_name, None)
+    if not func:
+        raise RuntimeError(f"Function {name} not available") from None
+    return func

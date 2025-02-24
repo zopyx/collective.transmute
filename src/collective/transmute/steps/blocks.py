@@ -1,12 +1,11 @@
 from collective.html2blocks.converter import volto_blocks
 from collective.transmute import _types as t
-from collective.transmute.utils import querystring as qs_utils
 
 
 def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
     """Add a listing block."""
     # TODO: Process query to remove old types
-    query = qs_utils.cleanup_querystring(item.get("query"))
+    query = item.get("query")
     if query:
         block = {
             "@type": "listing",
@@ -24,7 +23,7 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
 
 
 def _get_default_blocks(type_: str, config: t.Settings) -> list[dict] | None:
-    default_blocks = config.types[type_].get("blocks", None)
+    default_blocks = config.types.get(type_, {}).get("blocks", None)
     return [b.to_dict() for b in default_blocks] if default_blocks else None
 
 

@@ -43,3 +43,4 @@ PloneItem = TypedDict("PloneItem", {"@id": str, "@type": str, "UID": str})
 PloneItemGenerator = AsyncGenerator[PloneItem | None]
 
 PipelineStep = Callable[[], PloneItemGenerator]
+ItemProcessor = Callable[[], PloneItem]
