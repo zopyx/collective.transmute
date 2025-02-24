@@ -16,6 +16,10 @@ app = typer.Typer()
 def run(
     src: Annotated[Path, typer.Argument(help="Source path of the migration")],
     dst: Annotated[Path, typer.Argument(help="Destination path of the migration")],
+    clean_up: Annotated[
+        bool,
+        typer.Option(help="Should we remove all existing files in the dst?"),
+    ] = False,
 ):
     """Transmutes data from src folder (in collective.exportimport format)
     to plone.exportimport format in the dst folder.
@@ -24,6 +28,8 @@ def run(
         raise RuntimeError(f"{src} does not exist")
     if not file_utils.check_path(dst):
         raise RuntimeError(f"{dst} does not exist")
+    if clean_up:
+        file_utils.remove_data(dst)
     # Get the src_files
     logger.info("Getting list of files")
     src_files = file_utils.get_src_files(src)

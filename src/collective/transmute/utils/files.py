@@ -1,5 +1,6 @@
 from aiofiles.os import makedirs
 from base64 import b64decode
+from collections.abc import Generator
 from collections.abc import Iterator
 from collective.transmute import _types as t
 from collective.transmute import logger
@@ -10,6 +11,7 @@ from pathlib import Path
 import aiofiles
 import json
 import orjson
+import shutil
 
 
 SUFFIX = ".json"
@@ -113,3 +115,16 @@ async def export_metadata(metadata: t.MetadataInfo) -> Path:
             await f.write(json_dumps(data))
             logger.debug(f"Wrote {path}")
     return path
+
+
+def remove_data(path: Path):
+    """Remove all data inside a given path."""
+    logger.info(f"Removing all content in {path}")
+    contents: Generator[Path] = path.glob("*")
+    for content in contents:
+        if content.is_dir():
+            shutil.rmtree(content, True)
+            logger.debug(f" - Removed directory {content}")
+        else:
+            content.unlink()
+            logger.debug(f" - Removed file {content}")
