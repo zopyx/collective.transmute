@@ -44,6 +44,9 @@ keys_from_parent = [
 
 [sanitize]
 drop_keys = [
+    "is_folderish",
+    "items",
+    "items_total",
     "layout",
     "lock",
     "nextPreviousEnabled",

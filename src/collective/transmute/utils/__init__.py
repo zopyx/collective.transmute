@@ -1,7 +1,10 @@
 from collective.transmute import _types as t
+from collective.transmute.settings import pb_config
+from functools import cache
 from importlib import import_module
 
 
+@cache
 def load_step(name: str) -> t.PipelineStep:
     """Load a step from a dotted name."""
     mod_name, func_name = name.rsplit(".", 1)
@@ -34,9 +37,10 @@ def check_steps(names: list[str]) -> list[tuple[str, bool]]:
     return steps
 
 
-def load_processor(type_: str, config: t.Settings) -> t.ItemProcessor:
+@cache
+def load_processor(type_: str) -> t.ItemProcessor:
     """Load a processor for a given type."""
-    types_config = config.types
+    types_config = pb_config.types
     name = types_config.get(type_, {}).get("processor")
     if not name:
         name = types_config.processor

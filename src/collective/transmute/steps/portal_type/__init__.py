@@ -2,9 +2,9 @@ from collective.transmute import _types as t
 from collective.transmute.utils import load_processor
 
 
-def _pre_process(item: t.PloneItem, config: t.Settings) -> t.PloneItem:
+def _pre_process(item: t.PloneItem) -> t.PloneItem:
     """Pre-process an item."""
-    processor = load_processor(item["@type"], config)
+    processor = load_processor(item["@type"])
     return processor(item)
 
 
@@ -12,7 +12,7 @@ async def process_type(
     item: t.PloneItem, metadata: t.MetadataInfo, config: t.Settings
 ) -> t.PloneItemGenerator:
     id_ = item["@id"]
-    item = _pre_process(item, config)
+    item = _pre_process(item)
     type_ = item["@type"]
     # Get the new type mapping
     new_type = config.types.get(type_, {}).get("portal_type")
