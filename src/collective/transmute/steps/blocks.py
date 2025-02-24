@@ -16,7 +16,10 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
                 "sort_order": (
                     "ascending" if item["sort_reversed"] == "" else "descending"
                 ),
+                "sort_order_boolean": True,
             },
+            "styles": {},
+            "variation": "summary",
         }
         blocks.append(block)
     return blocks
