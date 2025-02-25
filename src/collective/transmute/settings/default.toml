@@ -20,6 +20,10 @@ steps=[
     'collective.transmute.steps.blobs.process_blobs',
     'collective.transmute.steps.sanitize.process_cleanup',
 ]
+do_not_add_drop = [
+    "process_paths",
+    "process_default_page",
+]
 
 [review_state.filter]
 allowed=[
@@ -31,6 +35,7 @@ allowed=[
 
 [paths.filter]
 allowed=[]
+drop=[]
 
 [paths.portal_type]
 

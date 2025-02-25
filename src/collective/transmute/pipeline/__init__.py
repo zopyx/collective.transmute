@@ -6,8 +6,19 @@ from collective.transmute.settings import is_debug
 from collective.transmute.settings import pb_config
 from collective.transmute.utils import exportimport as ei_utils
 from collective.transmute.utils import files as file_utils
+from collective.transmute.utils import item as item_utils
 from collective.transmute.utils import load_all_steps
 from pathlib import Path
+
+
+def _add_to_drop(path: str) -> None:
+    parents = item_utils.all_parents_for(path)
+    valid_path = parents & pb_config.paths.filter.allowed
+    if not valid_path:
+        return
+    alredy_in_drop = parents & pb_config.paths.filter.drop
+    if not alredy_in_drop:
+        pb_config.paths.filter.drop.add(path)
 
 
 async def _pipeline(
@@ -20,10 +31,16 @@ async def _pipeline(
         if not item:
             continue
         item_id = item["@id"]
+        is_folderish = item.get("is_folderish", False)
         step_name = step.__name__
+        add_to_drop = step_name not in pb_config.pipeline.do_not_add_drop
         result = step(item, metadata, config)
         async for item in result:
-            if item and item.pop("_is_new_item", False):
+            if not item and is_folderish and add_to_drop:
+                # Add this path to drop, to drop all
+                # children objects as well
+                _add_to_drop(item_id)
+            elif item and item.pop("_is_new_item", False):
                 logger.debug(
                     f"  - New item {item.get('@id')} from {step_name} for {item_id}"
                 )

@@ -1,17 +1,30 @@
 from dynaconf import Dynaconf
+from dynaconf import Validator
 from pathlib import Path
+from typing import Any
+
+
+def _as_set(value: Any) -> set:
+    """Cast value as set."""
+    value = value if value else []
+    return set(value)
 
 
 def _settings() -> Dynaconf:
     """Compute settings"""
     local_path = Path(__file__).parent
     default = local_path / "default.toml"
-    return Dynaconf(
+    settings = Dynaconf(
         envvar_prefix="PB_MIGRACAO",
         preload=[default],
         settings_files=["transmute.toml"],
         merge_enabled=True,
+        validators=[
+            Validator("paths.filter.allowed", cast=_as_set, default=set()),
+            Validator("paths.filter.drop", cast=_as_set, default=set()),
+        ],
     )
+    return settings
 
 
 pb_config: Dynaconf = _settings()
