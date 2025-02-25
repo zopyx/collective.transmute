@@ -1,6 +1,6 @@
 from collective.transmute import _types as t
 
 
-def processor(item: t.PloneItem) -> t.PloneItem:
+async def processor(item: t.PloneItem) -> t.PloneItemGenerator:
     """Process a PloneItem."""
-    return item
+    yield item
