@@ -16,8 +16,8 @@ def _add_to_drop(path: str) -> None:
     valid_path = parents & pb_config.paths.filter.allowed
     if not valid_path:
         return
-    alredy_in_drop = parents & pb_config.paths.filter.drop
-    if not alredy_in_drop:
+    already_in_drop = parents & pb_config.paths.filter.drop
+    if not already_in_drop:
         pb_config.paths.filter.drop.add(path)
 
 
