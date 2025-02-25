@@ -9,7 +9,9 @@ async def process_constraints(
     if old_constrains := item.pop(key, None):
         constrains = {}
         for c_type, value in old_constrains.items():
-            value = [fix_portal_type(v) for v in value]
-            constrains[c_type] = value
+            value = {fix_portal_type(v) for v in value}
+            # Remove empty value
+            value.pop("", None)
+            constrains[c_type] = list(value)
         item[key] = constrains
     yield item
