@@ -24,7 +24,7 @@ def _settings() -> Dynaconf:
             Validator("paths.filter.drop", cast=_as_set, default=set()),
         ],
     )
-    if not len(settings.pipeline.steps):
+    if not len(settings.pipeline.get("steps")):
         settings.pipeline.steps = settings.pipeline.default_steps
     return settings
 

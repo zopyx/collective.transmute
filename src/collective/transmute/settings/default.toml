@@ -20,6 +20,7 @@ default_steps=[
     'collective.transmute.steps.blobs.process_blobs',
     'collective.transmute.steps.sanitize.process_cleanup',
 ]
+steps = []
 do_not_add_drop = [
     "process_paths",
     "process_default_page",
