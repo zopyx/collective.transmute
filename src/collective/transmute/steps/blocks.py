@@ -39,7 +39,7 @@ def _get_default_blocks(
         blocks = []
         for block in [b.to_dict() for b in default_blocks]:
             block_type = block["@type"]
-            if (block_type == "leadimage" and not has_image) and (
+            if (block_type == "leadimage" and not has_image) or (
                 block_type == "description" and not has_description
             ):
                 continue
