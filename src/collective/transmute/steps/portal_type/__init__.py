@@ -5,7 +5,8 @@ from collective.transmute.utils import load_processor
 async def _pre_process(item: t.PloneItem) -> t.PloneItemGenerator:
     """Pre-process an item."""
     processor = load_processor(item["@type"])
-    yield await processor(item)
+    async for processed in processor(item):
+        yield processed
 
 
 async def process_type(
