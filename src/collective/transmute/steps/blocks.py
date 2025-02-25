@@ -9,6 +9,7 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
     if query:
         block = {
             "@type": "listing",
+            "headline": "",
             "headlineTag": "h2",
             "querystring": {
                 "query": query,
@@ -18,6 +19,8 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
                 ),
                 "sort_order_boolean": True,
             },
+            "b_size": item.get("item_count", 10),
+            "limit": item.get("limit", 1000),
             "styles": {},
             "variation": "summary",
         }

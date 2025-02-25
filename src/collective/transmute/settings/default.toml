@@ -46,12 +46,17 @@ keys_from_parent = [
 [sanitize]
 drop_keys = [
     "is_folderish",
-    "items",
+    "item_count",
     "items_total",
+    "items",
     "layout",
+    "limit",
     "lock",
     "nextPreviousEnabled",
     "parent",
+    "query",
+    "sort_on",
+    "sort_reversed",
 ]
 
 [types]
