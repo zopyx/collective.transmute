@@ -54,7 +54,10 @@ async def process_blocks(
     has_image = bool(item.get("image"))
     has_description = bool(item.get("description", "").strip())
     blocks = _get_default_blocks(type_, has_image, has_description)
-    if blocks:
+    # Blocks defined somewhere else
+    item_blocks = item.pop("_blocks_", [])
+    if blocks or item_blocks:
+        blocks.extend(item_blocks)
         if item["_orig_type"] == "Collection":
             blocks = _process_collection(item, blocks)
         text = item.get("text", {})
