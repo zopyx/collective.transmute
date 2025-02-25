@@ -7,7 +7,7 @@ default='Plone'
 remove=['admin']
 
 [pipeline]
-steps=[
+default_steps=[
     'collective.transmute.steps.ids.process_ids',
     'collective.transmute.steps.paths.process_paths',
     'collective.transmute.steps.portal_type.process_type',
@@ -51,17 +51,21 @@ keys_from_parent = [
 [sanitize]
 drop_keys = [
     "is_folderish",
-    "item_count",
-    "items_total",
     "items",
     "layout",
     "limit",
     "lock",
     "nextPreviousEnabled",
     "parent",
+]
+block_keys = [
+    "item_count",
+    "items_total",
+    "limit",
     "query",
     "sort_on",
     "sort_reversed",
+    "text",
 ]
 
 [types]

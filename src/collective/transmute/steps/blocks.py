@@ -1,5 +1,6 @@
 from collective.html2blocks.converter import volto_blocks
 from collective.transmute import _types as t
+from collective.transmute.settings import pb_config
 
 
 def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
@@ -28,16 +29,31 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
     return blocks
 
 
-def _get_default_blocks(type_: str, config: t.Settings) -> list[dict] | None:
-    default_blocks = config.types.get(type_, {}).get("blocks", None)
-    return [b.to_dict() for b in default_blocks] if default_blocks else None
+def _get_default_blocks(
+    type_: str, has_image: bool, has_description: bool
+) -> list[dict]:
+    type_info = pb_config.types.get(type_, {})
+    default_blocks = type_info.get("override_blocks", type_info.get("blocks", None))
+    blocks = [b.to_dict() for b in default_blocks] if default_blocks else []
+    if default_blocks:
+        blocks = []
+        for block in [b.to_dict() for b in default_blocks]:
+            block_type = block["@type"]
+            if (block_type == "leadimage" and not has_image) and (
+                block_type == "description" and not has_description
+            ):
+                continue
+            blocks.append(block)
+    return blocks
 
 
 async def process_blocks(
     item: dict, metadata: t.MetadataInfo, config: t.Settings
 ) -> t.PloneItemGenerator:
     type_ = item["@type"]
-    blocks = _get_default_blocks(type_, config)
+    has_image = bool(item.get("image"))
+    has_description = bool(item.get("description", "").strip())
+    blocks = _get_default_blocks(type_, has_image, has_description)
     if blocks:
         if item["_orig_type"] == "Collection":
             blocks = _process_collection(item, blocks)
