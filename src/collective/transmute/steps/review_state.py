@@ -1,4 +1,5 @@
 from collective.transmute import _types as t
+from collective.transmute.settings import pb_config
 
 
 def _is_valid_state(state_filter: dict[str, list], review_state: str) -> bool:
@@ -11,10 +12,10 @@ def _is_valid_state(state_filter: dict[str, list], review_state: str) -> bool:
 
 
 async def process_review_state(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
     review_state: str = item.get("review_state", "")
-    state_filter: dict[str, list] = config.review_state.get("filter", {})
+    state_filter: dict[str, list] = pb_config.review_state.get("filter", {})
     if not _is_valid_state(state_filter, review_state):
         yield None
     else:

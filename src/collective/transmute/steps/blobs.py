@@ -8,7 +8,7 @@ BLOBS_KEYS = [
 
 
 async def process_blobs(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
     item["_blob_files_"] = {}
     for key in BLOBS_KEYS:

@@ -48,7 +48,7 @@ def _get_default_blocks(
 
 
 async def process_blocks(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
     type_ = item["@type"]
     has_image = bool(item.get("image"))

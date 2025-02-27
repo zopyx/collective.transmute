@@ -2,7 +2,7 @@ from collective.transmute import _types as t
 
 
 async def process_title_description(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
     for field in ("title", "description"):
         cur_value = item.get(field)

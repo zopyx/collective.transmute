@@ -1,4 +1,5 @@
 from collective.transmute import _types as t
+from collective.transmute.settings import pb_config
 
 
 def _is_valid_path(path_filter: dict, path: str) -> bool:
@@ -17,10 +18,10 @@ def _is_valid_path(path_filter: dict, path: str) -> bool:
 
 
 async def process_paths(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
     id_ = item["@id"]
-    path_filter = config.paths.get("filter", {})
+    path_filter = pb_config.paths.get("filter", {})
     if not _is_valid_path(path_filter, id_):
         yield None
     else:

@@ -1,13 +1,14 @@
 from collective.transmute import _types as t
+from collective.transmute.settings import pb_config
 
 
 async def process_creators(
-    item: dict, metadata: t.MetadataInfo, config: t.Settings
+    item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
-    remove = config.principals.remove
+    remove = pb_config.principals.remove
     current = item.get("creators", [])
     creators = [creator for creator in current if creator not in remove]
     if not creators:
-        creators = [config.principals.default]
+        creators = [pb_config.principals.default]
     item["creators"] = creators
     yield item

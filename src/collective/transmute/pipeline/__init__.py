@@ -22,10 +22,7 @@ def _add_to_drop(path: str) -> None:
 
 
 async def _pipeline(
-    steps: tuple[t.PipelineStep],
-    item: dict,
-    metadata: t.MetadataInfo,
-    config: t.Settings,
+    steps: tuple[t.PipelineStep], item: dict, metadata: t.MetadataInfo
 ) -> AsyncGenerator[tuple[t.PloneItem | None, str]]:
     for step in steps:
         if not item:
@@ -34,7 +31,7 @@ async def _pipeline(
         is_folderish = item.get("is_folderish", False)
         step_name = step.__name__
         add_to_drop = step_name not in pb_config.pipeline.do_not_add_drop
-        result = step(item, metadata, config)
+        result = step(item, metadata)
         async for item in result:
             if not item and is_folderish and add_to_drop:
                 # Add this path to drop, to drop all
@@ -44,9 +41,7 @@ async def _pipeline(
                 logger.debug(
                     f"  - New item {item.get('@id')} from {step_name} for {item_id}"
                 )
-                async for sub_item, last_step in _pipeline(
-                    steps, item, metadata, config
-                ):
+                async for sub_item, last_step in _pipeline(steps, item, metadata):
                     yield sub_item, last_step
     yield item, step_name
 
@@ -65,26 +60,23 @@ async def pipeline(src_files: t.SourceFiles, dst: Path):
     dropped: defaultdict[str, int] = defaultdict(int)
     paths = []
     async for _, raw_item in file_utils.json_reader(content_files):
-        async for item, last_step in _pipeline(
-            steps, raw_item, metadata, config=pb_config
-        ):
-            if item:
-                item_files = await file_utils.export_item(item, content_folder)
-                # Update metadata
-                data_file = item_files.data
-                paths.append((item["@id"], data_file))
-                metadata._data_files_.append(data_file)
-                metadata._blob_files_.extend(item_files.blob_files)
-                item_uid = item["UID"]
-                exported[item["@type"]] += 1
-                metadata.__seen__.add(item_uid)
-            else:
-                # Dropped file
-                dropped[last_step] += 1
-                pass
+        async for item, last_step in _pipeline(steps, raw_item, metadata):
             processed += 1
             if processed % report_step == 0:
                 logger.info(f"  - Processed {processed}/{total} files")
+            if not item:
+                # Dropped file
+                dropped[last_step] += 1
+                continue
+            item_files = await file_utils.export_item(item, content_folder)
+            # Update metadata
+            data_file = item_files.data
+            paths.append((item["@id"], data_file))
+            metadata._data_files_.append(data_file)
+            metadata._blob_files_.extend(item_files.blob_files)
+            item_uid = item["UID"]
+            exported[item["@type"]] += 1
+            metadata.__seen__.add(item_uid)
     if is_debug:
         logger.debug("Converted")
         logger.debug(f"  - Total: {len(metadata.__seen__)}")
