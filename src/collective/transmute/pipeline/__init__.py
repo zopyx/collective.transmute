@@ -23,7 +23,7 @@ def _add_to_drop(path: str) -> None:
 
 async def _pipeline(
     steps: tuple[t.PipelineStep], item: dict, metadata: t.MetadataInfo
-) -> AsyncGenerator[tuple[t.PloneItem | None, str]]:
+) -> AsyncGenerator[tuple[t.PloneItem | None, str, bool]]:
     for step in steps:
         if not item:
             continue
@@ -41,9 +41,9 @@ async def _pipeline(
                 logger.debug(
                     f"  - New item {item.get('@id')} from {step_name} for {item_id}"
                 )
-                async for sub_item, last_step in _pipeline(steps, item, metadata):
-                    yield sub_item, last_step
-    yield item, step_name
+                async for sub_item, last_step, _ in _pipeline(steps, item, metadata):
+                    yield sub_item, last_step, True
+    yield item, step_name, False
 
 
 async def pipeline(src_files: t.SourceFiles, dst: Path):
@@ -60,8 +60,10 @@ async def pipeline(src_files: t.SourceFiles, dst: Path):
     dropped: defaultdict[str, int] = defaultdict(int)
     paths = []
     async for _, raw_item in file_utils.json_reader(content_files):
-        async for item, last_step in _pipeline(steps, raw_item, metadata):
+        async for item, last_step, is_new in _pipeline(steps, raw_item, metadata):
             processed += 1
+            if is_new:
+                total += 1
             if processed % report_step == 0:
                 logger.info(f"  - Processed {processed}/{total} files")
             if not item:
