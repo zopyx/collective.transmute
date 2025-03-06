@@ -3,7 +3,7 @@ from collective.transmute import _types as t
 from collective.transmute.settings import pb_config
 
 
-def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
+def _blocks_collection(item: dict, blocks: list[dict]) -> list[dict]:
     """Add a listing block."""
     # TODO: Process query to remove old types
     query = item.get("query")
@@ -27,6 +27,39 @@ def _process_collection(item: dict, blocks: list[dict]) -> list[dict]:
         }
         blocks.append(block)
     return blocks
+
+
+def _blocks_folder(item: dict, blocks: list[dict]) -> list[dict]:
+    """Adds a listing block."""
+    possible_variations = {
+        "listing_view": "listing",
+        "summary_view": "summary",
+        "tabular_view": "listing",
+        "full_view": "summary",
+        "album_view": "imageGallery",
+        "galeria_de_fotos": "imageGallery",
+        "galeria_de_albuns": "imageGallery",
+    }
+    if variation := item.get("layout"):
+        variation = possible_variations.get(variation)
+
+    if not variation:
+        variation = "listing"
+    block = {
+        "@type": "listing",
+        "headline": "",
+        "headlineTag": "h2",
+        "styles": {},
+        "variation": variation,
+    }
+    blocks.append(block)
+    return blocks
+
+
+BLOCKS_ORIG_TYPE = {
+    "Collection": _blocks_collection,
+    "Folder": _blocks_folder,
+}
 
 
 def _get_default_blocks(
@@ -60,8 +93,9 @@ async def process_blocks(
     item_blocks = item.pop("_blocks_", [])
     if blocks or item_blocks:
         blocks.extend(item_blocks)
-        if item["_orig_type"] == "Collection":
-            blocks = _process_collection(item, blocks)
+        orig_type = item.get("_orig_type")
+        if processor := BLOCKS_ORIG_TYPE.get(orig_type):
+            blocks = processor(item, blocks)
         text = item.get("text", {})
         src = text.get("data", "") if text else ""
         blocks_info = volto_blocks(source=src, default_blocks=blocks)
