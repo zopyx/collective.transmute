@@ -19,6 +19,7 @@ async def _create_report(files: Iterator) -> Path:
         "types": defaultdict(int),
         "creators": defaultdict(int),
         "states": defaultdict(int),
+        "layout": defaultdict(dict),
     }
     total = len(list(files))
     processed = 0
@@ -26,13 +27,17 @@ async def _create_report(files: Iterator) -> Path:
         processed += 1
         if processed % settings.pb_config.config.report == 0:
             logger.info(f"  - Processed {processed}/{total} files")
-        data["types"][item.get("@type")] += 1
-        review_state = item.get("review_state", "-")
-        if not review_state:
-            review_state = "-"
+        type_ = item.get("@type")
+        data["types"][type_] += 1
+        review_state = item.get("review_state", "-") or "-"
         data["states"][review_state] += 1
         for creator in item.get("creators", []):
             data["creators"][creator] += 1
+        if layout := item.get("layout"):
+            type_info = data["layout"][type_]
+            if layout not in type_info:
+                type_info[layout] = 0
+            data["layout"][type_][layout] += 1
     report_path = Path("report.json").resolve()
     path = await file_utils.json_dump(data, report_path)
     logger.info(f" - Wrote report to {path}")
