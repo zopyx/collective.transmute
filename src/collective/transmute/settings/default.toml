@@ -31,6 +31,10 @@ allowed=[
     "published"
 ]
 
+[review_state.rewrite]
+states = {}
+workflows = {}
+
 [paths.cleanup]
 "http://localhost:8080/Plone"= ""
 

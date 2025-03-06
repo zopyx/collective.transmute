@@ -1,0 +1,72 @@
+{
+    "@id": "https://staging-intranet-brh/intra_net_t/galerie/gesundheitstag-2024",
+    "@type": "Document",
+    "UID": "bb37ca09a63e4215970bdfe755dbddcd",
+    "allow_discussion": false,
+    "contributors": [],
+    "created": "2024-08-28T08:27:18+00:00",
+    "creators": [
+        "schmiju1"
+    ],
+    "description": null,
+    "effective": "2024-08-28T11:00:00+00:00",
+    "exclude_from_nav": false,
+    "expires": null,
+    "id": "gesundheitstag-2024",
+    "is_folderish": false,
+    "language": "de",
+    "layout": "document_view",
+    "location": "",
+    "modified": "2024-08-28T11:31:02+00:00",
+    "parent": {
+        "@id": "https://staging-intranet-brh/intra_net_t/galerie",
+        "@type": "Folder",
+        "UID": "16de1b2e43eb703fdbed7f4ec08e9e4a",
+        "description": "",
+        "review_state": "published",
+        "title": "Galerie"
+    },
+    "presentation": false,
+    "review_state": "published",
+    "rights": null,
+    "subjects": [],
+    "tableContents": false,
+    "text": {
+        "content-type": "text/html",
+        "data": "<p>Impulse f\u00fcr gesundheitsorientiertes Leben und Arbeiten</p>\r\n<p>Nach f\u00fcnf Jahren Pause fand im Bonner Hauptgeb\u00e4ude am Donnerstag, dem 22. August 2024, wieder ein Gesundheitstag statt. Rund um die Themen Gesundheit, Psyche und Ern\u00e4hrung gab es 23 Angebote. Sie reichten von einem Pannenkurs f\u00fcr Fahrr\u00e4der \u00fcber zahlreiche Beratungsm\u00f6glichkeiten, Gleichgewichts\u00fcbungen per VR-Flugsimulator, dem Sprung in die eigene Zukunft \u00fcber einen Alterssimulationsanzug bis hin zum aktiven Mitmachen bei einem sichtlich anspruchsvollen Fitness-Zirkel.</p>\r\n<p>Und Gold gab es auch. Der ADFC nutzte den Gesundheitstag, um dem BRH die Zertifizierung als Fahrradfreundlicher Arbeitgeber in Gold f\u00fcr den Standort Bonn offiziell auszuh\u00e4ndigen. </p>\r\n<p>Bilder zum Gesundheitstag gibt es <a class=\"internal-link\" href=\"resolveuid/2149c0421fda4af387816bc5e80086bb\" target=\"_self\" title=\"\">hier</a></p>"
+    },
+    "title": "Gesundheitstag 2024",
+    "version": "current",
+    "workflow_history": {
+        "plone_workflow": [
+            {
+                "action": null,
+                "actor": "schmiju1",
+                "comments": "",
+                "review_state": "visible",
+                "time": "2024-08-28T08:27:18+00:00"
+            },
+            {
+                "action": "hide",
+                "actor": "schmiju1",
+                "comments": "",
+                "review_state": "private",
+                "time": "2024-08-28T08:30:15+00:00"
+            },
+            {
+                "action": "show",
+                "actor": "schmiju1",
+                "comments": "",
+                "review_state": "visible",
+                "time": "2024-08-28T11:02:08+00:00"
+            },
+            {
+                "action": "publish",
+                "actor": "schmiju1",
+                "comments": "",
+                "review_state": "published",
+                "time": "2024-08-28T11:02:13+00:00"
+            }
+        ]
+    }
+}

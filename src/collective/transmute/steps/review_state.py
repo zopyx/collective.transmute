@@ -1,5 +1,6 @@
 from collective.transmute import _types as t
 from collective.transmute.settings import pb_config
+from collective.transmute.utils import workflow
 
 
 def _is_valid_state(state_filter: dict[str, list], review_state: str) -> bool:
@@ -19,4 +20,5 @@ async def process_review_state(
     if not _is_valid_state(state_filter, review_state):
         yield None
     else:
+        item = workflow.rewrite_workflow_history(item)
         yield item
