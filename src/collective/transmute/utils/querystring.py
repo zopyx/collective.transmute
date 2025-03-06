@@ -2,6 +2,7 @@ from .portal_types import fix_portal_type
 
 
 def cleanup_querystring(query: list[dict]) -> list[dict]:
+    query = query if query else []
     new_query = []
     for item in query:
         index = item["i"]
