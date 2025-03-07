@@ -1,5 +1,8 @@
 from collective.transmute import _types as t
+from collective.transmute import logger
 from collective.transmute.settings import pb_config
+from contextlib import contextmanager
+from datetime import datetime
 from functools import cache
 from importlib import import_module
 
@@ -53,3 +56,21 @@ def load_processor(type_: str) -> t.ItemProcessor:
     if not func:
         raise RuntimeError(f"Function {name} not available") from None
     return func
+
+
+def sort_data(
+    data: dict[str, int], reverse: bool = True
+) -> tuple[tuple[str, int], ...]:
+    return tuple(sorted(data.items(), key=lambda x: x[1], reverse=reverse))
+
+
+@contextmanager
+def report_time(title: str, consoles: t.ConsoleArea):
+    start = datetime.now()
+    msg = f"{title} started at {start}"
+    consoles.print_log(msg)
+    yield
+    finish = datetime.now()
+    msg = f"{title} ended at {finish}\n{title} took {(finish - start).seconds} seconds"
+    consoles.print_log(msg)
+    logger.info(msg)

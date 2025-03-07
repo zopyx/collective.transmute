@@ -1,5 +1,6 @@
 [config]
 debug=false
+log_file="transmute.log"
 report=1000
 
 [principals]
@@ -14,6 +15,7 @@ default_steps=[
     'collective.transmute.steps.basic_metadata.process_title_description',
     'collective.transmute.steps.review_state.process_review_state',
     'collective.transmute.steps.default_page.process_default_page',
+    'collective.transmute.steps.data_override.process_data_override',
     'collective.transmute.steps.creators.process_creators',
     'collective.transmute.steps.constraints.process_constraints',
     'collective.transmute.steps.blocks.process_blocks',
@@ -37,6 +39,8 @@ workflows = {}
 
 [paths.cleanup]
 "http://localhost:8080/Plone"= ""
+"%20" = "_"
+" " = "_"
 
 [paths.filter]
 allowed=[]
@@ -72,6 +76,8 @@ block_keys = [
     "sort_reversed",
     "text",
 ]
+
+[data_override]
 
 [types]
 processor='collective.transmute.steps.portal_type.default.processor'

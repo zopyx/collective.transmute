@@ -1,7 +1,9 @@
-from collective.transmute import logger
+from collections import defaultdict
+from collective.transmute import _types as t
+from collective.transmute import layout
 from collective.transmute.pipeline import pipeline
 from collective.transmute.utils import files as file_utils
-from datetime import datetime
+from collective.transmute.utils import report_time
 from pathlib import Path
 from typing import Annotated
 
@@ -10,6 +12,23 @@ import typer
 
 
 app = typer.Typer()
+
+
+def _create_state(app_layout: layout.ApplicationLayout, total: int) -> t.PipelineState:
+    """Initialize a PipelineState object."""
+    app_layout.initialize_progress(total)
+    return t.PipelineState(
+        total,
+        processed=0,
+        exported=defaultdict(int),
+        dropped=defaultdict(int),
+        progress=app_layout.progress,
+    )
+
+
+def _remove_existing_data(dst: Path, consoles: t.ConsoleArea):
+    consoles.print(f"Removing existing content in {dst}")
+    file_utils.remove_data(dst, consoles)
 
 
 @app.command()
@@ -24,20 +43,18 @@ def run(
     """Transmutes data from src folder (in collective.exportimport format)
     to plone.exportimport format in the dst folder.
     """
-    if not file_utils.check_path(src):
-        raise RuntimeError(f"{src} does not exist")
-    if not file_utils.check_path(dst):
-        raise RuntimeError(f"{dst} does not exist")
-    if clean_up:
-        file_utils.remove_data(dst)
-    # Get the src_files
-    logger.info("Getting list of files")
-    src_files = file_utils.get_src_files(src)
-    logger.info(f"- Found {len(src_files.metadata)} metadata to be processed")
-    logger.info(f"- Found {len(src_files.content)} files to be processed")
-    start = datetime.now()
-    logger.debug(f"Transmute started at {start}")
-    asyncio.run(pipeline(src_files, dst))
-    finish = datetime.now()
-    logger.debug(f"Transmute ended at {finish}")
-    logger.debug(f"Transmute took {(finish - start).seconds} seconds")
+    # Check if paths exist
+    file_utils.check_paths(src, dst)
+    app_layout = layout.TransmuteLayout(title=f"{src} -> {dst}")
+    consoles = app_layout.consoles
+    with layout.live(app_layout, redirect_stderr=False):
+        consoles.print(f"Listing content in {src}")
+        src_files = file_utils.get_src_files(src)
+        total = len(src_files.content)
+        consoles.print(f"- Found {total} files to be processed")
+        if clean_up:
+            _remove_existing_data(dst, consoles)
+        state = _create_state(app_layout, total)
+        app_layout.update_layout(state)
+        with report_time("Transmute", consoles):
+            asyncio.run(pipeline(src_files, dst, state, consoles))

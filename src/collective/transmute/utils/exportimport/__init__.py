@@ -1,12 +1,11 @@
 from collections.abc import AsyncGenerator
-from collective.transmute._types import MetadataInfo
-from collective.transmute._types import SourceFiles
+from collective.transmute import _types as t
 from collective.transmute.utils import files
 from dataclasses import asdict
 from pathlib import Path
 
 
-async def initialize_metadata(src_files: SourceFiles, dst: Path) -> MetadataInfo:
+async def initialize_metadata(src_files: t.SourceFiles, dst: Path) -> t.MetadataInfo:
     path = dst / "__metadata__.json"
     metadata_files = src_files.metadata
     data = {}
@@ -29,7 +28,7 @@ async def initialize_metadata(src_files: SourceFiles, dst: Path) -> MetadataInfo
     }
     relations: list[dict] = data.get("relations", [])
 
-    return MetadataInfo(
+    return t.MetadataInfo(
         path=path,
         default_page=default_page,
         local_permissions=local_permissions,
@@ -40,19 +39,18 @@ async def initialize_metadata(src_files: SourceFiles, dst: Path) -> MetadataInfo
 
 
 async def prepare_metadata_file(
-    metadata: MetadataInfo, debug: bool = False
+    metadata: t.MetadataInfo, state: t.PipelineState, debug: bool = False
 ) -> AsyncGenerator[tuple[dict, Path]]:
     data: dict = asdict(metadata)
     path: Path = data.pop("path")
     if debug:
-        data["__seen__"] = list(data["__seen__"])
+        data["__seen__"] = list(state.seen)
         debug_path = path.parent / "__debug_metadata__.json"
         yield data, debug_path
-    seen = data.pop("__seen__", [])
     remove = [key for key in data if key.startswith("__") and key != "__version__"]
-    data["default_page"] = {k: v for k, v in data["default_page"].items() if k in seen}
-    data["ordering"] = {k: v for k, v in data["ordering"].items() if k in seen}
-    data["local_roles"] = {k: v for k, v in data["local_roles"].items() if k in seen}
+
+    for key in ["default_page", "ordering", "local_roles"]:
+        data[key] = {k: v for k, v in data[key].items() if k in state.seen}
     data["relations"] = []
     for item in remove:
         data.pop(item)

@@ -14,6 +14,16 @@ def rewrite_settings() -> dict:
 
 
 def rewrite_workflow_history(item: PloneItem) -> PloneItem:
+    """Rewrite review_state and workflow_history for an item.
+
+    Configuration should be added to transmute.toml
+
+    ```toml
+    [review_state.rewrite]
+    states = {"visible": "published"}
+    workflows = {"plone_workflow": "simple_publication_workflow"}
+    ```
+    """
     settings = rewrite_settings()
     review_state = item.get("review_state")
     if new_state := settings["states"].get(review_state):

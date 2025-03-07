@@ -41,6 +41,14 @@ def check_path(path: Path) -> bool:
     return path.exists()
 
 
+def check_paths(src: Path, dst: Path) -> bool:
+    if not check_path(src):
+        raise RuntimeError(f"{src} does not exist")
+    if not check_path(dst):
+        raise RuntimeError(f"{dst} does not exist")
+    return True
+
+
 def _sort_content_files(content: list[Path]) -> list[Path]:
     """Order files"""
 
@@ -110,23 +118,25 @@ async def export_item(item: t.PloneItem, parent_folder: Path) -> t.ItemFiles:
     return t.ItemFiles(f"{data_path.relative_to(parent_folder)}", blob_files)
 
 
-async def export_metadata(metadata: t.MetadataInfo) -> Path:
+async def export_metadata(metadata: t.MetadataInfo, state: t.PipelineState) -> Path:
     """Export metadata."""
-    async for data, path in ei_utils.prepare_metadata_file(metadata, settings.is_debug):
+    async for data, path in ei_utils.prepare_metadata_file(
+        metadata, state, settings.is_debug
+    ):
         async with aiofiles.open(path, "wb") as f:
             await f.write(json_dumps(data))
             logger.debug(f"Wrote {path}")
     return path
 
 
-def remove_data(path: Path):
+def remove_data(path: Path, consoles: t.ConsoleArea | None = None):
     """Remove all data inside a given path."""
-    logger.info(f"Removing all content in {path}")
+    report = consoles.print if consoles else logger.debug
     contents: Generator[Path] = path.glob("*")
     for content in contents:
         if content.is_dir():
             shutil.rmtree(content, True)
-            logger.debug(f" - Removed directory {content}")
+            report(f" - Removed directory {content}")
         else:
             content.unlink()
-            logger.debug(f" - Removed file {content}")
+            report(f" - Removed file {content}")

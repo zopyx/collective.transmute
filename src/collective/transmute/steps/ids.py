@@ -9,4 +9,6 @@ async def process_ids(
     for src, rpl in pb_config.paths.get("cleanup", {}).items():
         id_ = id_.replace(src, rpl)
     item["@id"] = id_
+    # Last element would be the id of the object
+    item["id"] = id_.split("/")[-1]
     yield item
