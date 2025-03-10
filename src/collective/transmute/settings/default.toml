@@ -75,6 +75,8 @@ block_keys = [
     "sort_on",
     "sort_reversed",
     "text",
+    "template_layout",
+    "tiles",
 ]
 
 [data_override]
