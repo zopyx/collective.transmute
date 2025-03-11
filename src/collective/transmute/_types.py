@@ -92,6 +92,7 @@ class PipelineState:
     dropped: defaultdict[str, int]
     progress: PipelineProgress
     seen: set = field(default_factory=set)
+    uids: dict = field(default_factory=dict)
 
 
 @dataclass

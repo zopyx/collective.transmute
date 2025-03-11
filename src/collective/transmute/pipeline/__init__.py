@@ -79,6 +79,7 @@ async def pipeline(
     dropped = state.dropped
     progress = state.progress
     seen = state.seen
+    uids = state.uids
     paths = []
     async for _, raw_item in file_utils.json_reader(content_files):
         async for item, last_step, is_new in _pipeline(
@@ -102,6 +103,11 @@ async def pipeline(
             item_uid = item["UID"]
             exported[item["@type"]] += 1
             seen.add(item_uid)
+            uids[item_uid] = item_uid
+            # Map the old_uid to the new uid
+            if old_uid := item.pop("_UID", None):
+                uids[old_uid] = item_uid
+
     if is_debug:
         _report_final_state(consoles, state)
     paths = sorted(paths)
