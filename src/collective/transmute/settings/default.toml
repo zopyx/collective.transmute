@@ -44,6 +44,7 @@ workflows = {}
 "http://localhost:8080/Plone"= ""
 "%20" = "_"
 " " = "_"
+"/_" = "/"
 
 [paths.filter]
 allowed=[]

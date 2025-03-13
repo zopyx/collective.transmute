@@ -60,6 +60,7 @@ test = [
     "pytest-cov>=6.0.0",
     "types-aiofiles>=24.1.0.20241221",
     "mypy>=1.15.0",
+    "pytest-asyncio>=0.23.8",
 ]
 
 [tool.uv]
@@ -69,6 +70,7 @@ default-groups = ["test"]
 collective-html2blocks = { git = "https://github.com/collective/collective.html2blocks" }
 
 [tool.pytest.ini_options]
+asyncio_mode = "auto"
 testpaths = ["tests"]
 
 [tool.coverage.run]
