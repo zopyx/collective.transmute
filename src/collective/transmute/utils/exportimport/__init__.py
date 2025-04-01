@@ -81,12 +81,10 @@ async def prepare_relations_data(
         from_uuid: str | None = uids.get(item.get("from_uuid"), None)
         to_uuid: str | None = uids.get(item.get("to_uuid"), None)
         if from_uuid and to_uuid and from_uuid != to_uuid:
-            data.append(
-                {
-                    "from_attribute": item["relationship"],
-                    "from_uuid": from_uuid,
-                    "to_uuid": from_uuid,
-                }
-            )
+            data.append({
+                "from_attribute": item["relationship"],
+                "from_uuid": from_uuid,
+                "to_uuid": from_uuid,
+            })
     path = (metadata_path.parent.parent / "relations.json").resolve()
     yield data, path

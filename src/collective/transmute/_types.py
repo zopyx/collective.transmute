@@ -102,6 +102,7 @@ class ReportState:
     creators: defaultdict[str, int]
     states: defaultdict[str, int]
     layout: dict[str, defaultdict[str, int]]
+    type_report: defaultdict[str, list]
     progress: PipelineProgress
 
     def to_dict(self) -> dict[str, int | dict]:

@@ -10,6 +10,7 @@ from collective.transmute.utils import exportimport as ei_utils
 from pathlib import Path
 
 import aiofiles
+import csv
 import json
 import orjson
 import shutil
@@ -32,6 +33,16 @@ async def json_dump(data: dict | list, path: Path) -> Path:
     """Dump JSON to file."""
     async with aiofiles.open(path, "wb") as f:
         await f.write(json_dumps(data))
+    return path
+
+
+async def csv_dump(data: dict | list, header: list[str], path: Path) -> Path:
+    """Dump data to csv file."""
+    with open(path, "w") as f:
+        writer = csv.DictWriter(f, header)
+        writer.writeheader()
+        for row in data:
+            writer.writerow(row)
     return path
 
 
