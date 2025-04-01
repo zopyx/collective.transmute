@@ -40,14 +40,12 @@ async def _create_report(dst: Path, state: t.ReportState, report_types: list) ->
             id_ = item.get("@id")
             UID = item.get("UID")
             title = item.get("title")
-            state.type_report[type_].append(
-                {
-                    "@id": id_,
-                    "UID": UID,
-                    "@type": type_,
-                    "title": title,
-                }
-            )
+            state.type_report[type_].append({
+                "@id": id_,
+                "UID": UID,
+                "@type": type_,
+                "title": title,
+            })
         review_state = item.get("review_state", "-") or "-"
         state.states[review_state] += 1
         for creator in item.get("creators", []):

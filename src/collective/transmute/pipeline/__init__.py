@@ -129,15 +129,15 @@ async def pipeline(
                 path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))
                 continue
             dst_item = {
-                "dst_path": item.get("@id"),
-                "dst_type": item.get("@type"),
-                "dst_uid": item.get("UID"),
+                "dst_path": item.get("@id", "") or "",
+                "dst_type": item.get("@type", "") or "",
+                "dst_uid": item.get("UID", "") or "",
             }
             if is_new:
                 total += 1
-                dst_item["@id"] += "--"
-                dst_item["@type"] = ""
-                dst_item["UID"] = ""
+                dst_item["dst_path"] += "--"
+                dst_item["dst_type"] = ""
+                dst_item["dst_uid"] = ""
                 progress.total("processed", total)
 
             path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))
