@@ -109,8 +109,6 @@ async def pipeline(
             "src_type": raw_item.get("@type"),
             "src_uid": raw_item.get("UID"),
         }
-        if len(paths) > 1000:
-            continue
         async for item, last_step, is_new in _pipeline(
             steps, raw_item, metadata, consoles
         ):
