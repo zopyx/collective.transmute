@@ -85,6 +85,18 @@ class ReportProgress:
 
 
 @dataclass
+class PipelineItemReport(TypedDict):
+
+    src_path: str
+    src_uid: str
+    src_type: str
+    dst_path: str
+    dst_uid: str
+    dst_type: str
+    last_step: str
+
+
+@dataclass
 class PipelineState:
     total: int
     processed: int
@@ -93,6 +105,7 @@ class PipelineState:
     progress: PipelineProgress
     seen: set = field(default_factory=set)
     uids: dict = field(default_factory=dict)
+    path_transforms: list[PipelineItemReport] = field(default_factory=list)
 
 
 @dataclass

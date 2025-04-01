@@ -30,6 +30,26 @@ def _report_final_state(consoles: t.ConsoleArea, state: t.PipelineState):
         consoles.print_log(f"  - {name}: {total}")
 
 
+async def _write_path_report(
+    state: t.PipelineState,
+    consoles: t.ConsoleArea,
+):
+    headers = [
+        "src_path",
+        "src_uid",
+        "src_type",
+        "dst_path",
+        "dst_uid",
+        "dst_type",
+        "last_step",
+    ]
+    dst = Path().cwd()
+    report_path = Path(dst / "report_transmute.csv").resolve()
+    paths_data = state.path_transforms
+    csv_path = await file_utils.csv_dump(paths_data, headers, report_path)
+    consoles.print(f" - Wrote paths report to {csv_path}")
+
+
 async def _pipeline(
     steps: tuple[t.PipelineStep],
     item: dict,
@@ -64,6 +84,7 @@ async def pipeline(
     src_files: t.SourceFiles,
     dst: Path,
     state: t.PipelineState,
+    write_report: bool,
     consoles: t.ConsoleArea,
 ):
     content_folder = dst / "content"
@@ -80,21 +101,46 @@ async def pipeline(
     progress = state.progress
     seen = state.seen
     uids = state.uids
-    paths = []
+    path_transforms = state.path_transforms
+    paths: list[tuple[str, str]] = []
     async for _, raw_item in file_utils.json_reader(content_files):
+        src_item = {
+            "src_path": raw_item.get("@id"),
+            "src_type": raw_item.get("@type"),
+            "src_uid": raw_item.get("UID"),
+        }
+        if len(paths) > 1000:
+            continue
         async for item, last_step, is_new in _pipeline(
             steps, raw_item, metadata, consoles
         ):
             processed += 1
             progress.advance("processed")
-            if is_new:
-                total += 1
-                progress.total("processed", total)
+            dst_item = {
+                "dst_path": "--",
+                "dst_type": "--",
+                "dst_uid": "--",
+                "last_step": last_step,
+            }
             if not item:
                 # Dropped file
                 progress.advance("dropped")
                 dropped[last_step] += 1
+                path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))
                 continue
+            dst_item = {
+                "dst_path": item.get("@id"),
+                "dst_type": item.get("@type"),
+                "dst_uid": item.get("UID"),
+            }
+            if is_new:
+                total += 1
+                dst_item["@id"] += "--"
+                dst_item["@type"] = ""
+                dst_item["UID"] = ""
+                progress.total("processed", total)
+
+            path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))
             item_files = await file_utils.export_item(item, content_folder)
             # Update metadata
             data_file = item_files.data
@@ -108,6 +154,8 @@ async def pipeline(
             if old_uid := item.pop("_UID", None):
                 uids[old_uid] = item_uid
 
+    if write_report:
+        await _write_path_report(state, consoles)
     if is_debug:
         _report_final_state(consoles, state)
     paths = sorted(paths)

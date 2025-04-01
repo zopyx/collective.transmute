@@ -35,6 +35,12 @@ def _remove_existing_data(dst: Path, consoles: t.ConsoleArea):
 def run(
     src: Annotated[Path, typer.Argument(help="Source path of the migration")],
     dst: Annotated[Path, typer.Argument(help="Destination path of the migration")],
+    write_report: Annotated[
+        bool,
+        typer.Option(
+            help="Should we write a csv report with all path transformations?"
+        ),
+    ] = False,
     clean_up: Annotated[
         bool,
         typer.Option(help="Should we remove all existing files in the dst?"),
@@ -57,4 +63,4 @@ def run(
         state = _create_state(app_layout, total)
         app_layout.update_layout(state)
         with report_time("Transmute", consoles):
-            asyncio.run(pipeline(src_files, dst, state, consoles))
+            asyncio.run(pipeline(src_files, dst, state, write_report, consoles))
