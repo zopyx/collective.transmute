@@ -48,6 +48,8 @@ async def test_process_ids(metadata, base_item, path: str, id_: str):
         [" foo ", "foo"],
         ["__ foo __", "foo"],
         ["_document", "document"],
+        ["file with spaces.docx", "file_with_spaces.docx"],
+        ["foo-", "foo"],
     ],
 )
 def test_fix_short_id(id_: str, expected: str):
