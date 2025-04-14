@@ -59,12 +59,7 @@ drop=[]
 
 
 [default_page]
-keys_from_parent = [
-    "@id",
-    "@type",
-    "UID",
-    "id",
-]
+keys_from_parent = []
 
 [sanitize]
 drop_keys = [

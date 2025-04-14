@@ -1,9 +1,16 @@
 from collective.transmute import _types as t
 from collective.transmute.settings import pb_config
+from functools import cache
+
+
+@cache
+def get_keys_from_parent() -> set[str]:
+    """Return keys_from_parent."""
+    return set(pb_config.default_page.get("keys_from_parent", []))
 
 
 def _merge_items(parent_item: t.PloneItem, item: t.PloneItem) -> dict:
-    keys_from_parent = pb_config.default_page.get("keys_from_parent", [])
+    keys_from_parent = get_keys_from_parent()
     filtered = {k: v for k, v in parent_item.items() if k in keys_from_parent}
     # Keep old UID here
     item["_UID"] = item.pop("UID")
