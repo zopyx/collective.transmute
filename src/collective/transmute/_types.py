@@ -11,6 +11,7 @@ from rich.console import Console
 from rich.progress import Progress
 from typing import TypedDict
 
+import logging
 import os
 
 
@@ -43,15 +44,25 @@ class ConsolePanel(Console):
 class ConsoleArea:
     main: ConsolePanel
     side: ConsolePanel
+    ui: bool = True
+
+    def disable_ui(self):
+        """Disable ui for the consoles."""
+        self.ui = False
+        logger.addHandler(logging.StreamHandler())
 
     def print(self, message: str, panel_id: str = "main") -> None:
         """Print to one of the consoles."""
-        console: ConsolePanel = getattr(self, panel_id)
-        console.print(message)
+        if self.ui:
+            console: ConsolePanel = getattr(self, panel_id)
+            console.print(message)
+        else:
+            logger.info(message)
 
     def print_log(self, message: str, panel_id: str = "main") -> None:
         """Print to one of the consoles."""
-        self.print(message, panel_id)
+        if self.ui:
+            self.print(message, panel_id)
         logger.info(message)
 
 

@@ -31,6 +31,26 @@ def _remove_existing_data(dst: Path, consoles: t.ConsoleArea):
     file_utils.remove_data(dst, consoles)
 
 
+def _run_pipeline(
+    src: Path,
+    dst: Path,
+    app_layout: layout.TransmuteLayout,
+    consoles: t.ConsoleArea,
+    clean_up: bool,
+    write_report: bool,
+):
+    consoles.print(f"Listing content in {src}")
+    src_files = file_utils.get_src_files(src)
+    total = len(src_files.content)
+    consoles.print(f"- Found {total} files to be processed")
+    if clean_up:
+        _remove_existing_data(dst, consoles)
+    state = _create_state(app_layout, total)
+    app_layout.update_layout(state)
+    with report_time("Transmute", consoles):
+        asyncio.run(pipeline(src_files, dst, state, write_report, consoles))
+
+
 @app.command()
 def run(
     src: Annotated[Path, typer.Argument(help="Source path of the migration")],
@@ -45,6 +65,10 @@ def run(
         bool,
         typer.Option(help="Should we remove all existing files in the dst?"),
     ] = False,
+    ui: Annotated[
+        bool,
+        typer.Option(help="Use rich UI"),
+    ] = True,
 ):
     """Transmutes data from src folder (in collective.exportimport format)
     to plone.exportimport format in the dst folder.
@@ -53,14 +77,9 @@ def run(
     file_utils.check_paths(src, dst)
     app_layout = layout.TransmuteLayout(title=f"{src} -> {dst}")
     consoles = app_layout.consoles
-    with layout.live(app_layout, redirect_stderr=False):
-        consoles.print(f"Listing content in {src}")
-        src_files = file_utils.get_src_files(src)
-        total = len(src_files.content)
-        consoles.print(f"- Found {total} files to be processed")
-        if clean_up:
-            _remove_existing_data(dst, consoles)
-        state = _create_state(app_layout, total)
-        app_layout.update_layout(state)
-        with report_time("Transmute", consoles):
-            asyncio.run(pipeline(src_files, dst, state, write_report, consoles))
+    if ui:
+        with layout.live(app_layout, redirect_stderr=False):
+            _run_pipeline(src, dst, app_layout, consoles, clean_up, write_report)
+    else:
+        consoles.disable_ui()
+        _run_pipeline(src, dst, app_layout, consoles, clean_up, write_report)
