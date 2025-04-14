@@ -86,6 +86,7 @@ class ReportProgress:
 
 @dataclass
 class PipelineItemReport(TypedDict):
+    filename: str
     src_path: str
     src_uid: str
     src_type: str

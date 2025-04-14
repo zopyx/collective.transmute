@@ -17,6 +17,19 @@ def fix_short_id(id_: str) -> str:
     return id_
 
 
+async def process_export_prefix(
+    item: t.PloneItem, metadata: t.MetadataInfo
+) -> t.PloneItemGenerator:
+    path = item["@id"]
+    for src in pb_config.paths.get("export_prefixes", []):
+        if path.startswith(src):
+            path = path.replace(src, "")
+    item["@id"] = path
+    # Used in reports
+    item["_@id"] = path
+    yield item
+
+
 async def process_ids(
     item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:

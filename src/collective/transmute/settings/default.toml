@@ -12,6 +12,7 @@ keep = false
 
 [pipeline]
 default_steps=[
+    'collective.transmute.steps.ids.process_export_prefix',
     'collective.transmute.steps.ids.process_ids',
     'collective.transmute.steps.paths.process_paths',
     'collective.transmute.steps.portal_type.process_type',
@@ -40,8 +41,12 @@ allowed=[
 states = {}
 workflows = {}
 
+[paths]
+export_prefixes = [
+    "http://localhost:8080/Plone",
+]
+
 [paths.cleanup]
-"http://localhost:8080/Plone"= ""
 "%20" = "_"
 " " = "_"
 "/_" = "/"

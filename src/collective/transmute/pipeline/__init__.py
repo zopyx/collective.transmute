@@ -35,6 +35,7 @@ async def _write_path_report(
     consoles: t.ConsoleArea,
 ):
     headers = [
+        "filename",
         "src_path",
         "src_uid",
         "src_type",
@@ -103,8 +104,9 @@ async def pipeline(
     uids = state.uids
     path_transforms = state.path_transforms
     paths: list[tuple[str, str]] = []
-    async for _, raw_item in file_utils.json_reader(content_files):
+    async for filename, raw_item in file_utils.json_reader(content_files):
         src_item = {
+            "filename": filename,
             "src_path": raw_item.get("@id"),
             "src_type": raw_item.get("@type"),
             "src_uid": raw_item.get("UID"),
@@ -114,6 +116,7 @@ async def pipeline(
         ):
             processed += 1
             progress.advance("processed")
+            src_item["src_path"] = raw_item.get("_@id", src_item["src_path"])
             dst_item = {
                 "dst_path": "--",
                 "dst_type": "--",
@@ -133,9 +136,8 @@ async def pipeline(
             }
             if is_new:
                 total += 1
-                dst_item["dst_path"] += "--"
-                dst_item["dst_type"] = ""
-                dst_item["dst_uid"] = ""
+                src_item["src_type"] = "--"
+                src_item["src_uid"] = "--"
                 progress.total("processed", total)
 
             path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))

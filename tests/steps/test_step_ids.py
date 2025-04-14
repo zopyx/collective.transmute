@@ -4,13 +4,29 @@ import pytest
 
 
 @pytest.mark.parametrize(
+    "base_item,path",
+    [
+        [{"@id": "http://localhost:8080/Plone/foo"}, "/foo"],
+        [{"@id": "http://localhost:8080/Plone/ foo"}, "/ foo"],
+    ],
+)
+async def test_process_export_prefix(metadata, base_item, path: str):
+    results = []
+    async for item in ids.process_export_prefix(base_item, metadata):
+        results.append(item)
+    assert len(results) == 1
+    result = results[0]
+    assert result["@id"] == path
+
+
+@pytest.mark.parametrize(
     "base_item,path,id_",
     [
-        [{"@id": "http://localhost:8080/Plone/foo", "id": "foo"}, "/foo", "foo"],
-        [{"@id": "http://localhost:8080/Plone/ foo", "id": " foo"}, "/foo", "foo"],
-        [{"@id": "http://localhost:8080/Plone/_foo", "id": "_foo"}, "/foo", "foo"],
+        [{"@id": "/foo", "id": "foo"}, "/foo", "foo"],
+        [{"@id": "/ foo", "id": " foo"}, "/foo", "foo"],
+        [{"@id": "/_foo", "id": "_foo"}, "/foo", "foo"],
         [
-            {"@id": "http://localhost:8080/Plone/_foo bar", "id": "_foo bar"},
+            {"@id": "/_foo bar", "id": "_foo bar"},
             "/foo_bar",
             "foo_bar",
         ],
