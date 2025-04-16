@@ -1,6 +1,7 @@
 from collective.transmute import _types as t
 from collective.transmute.settings import pb_config
 from functools import cache
+from urllib import parse
 
 import re
 
@@ -47,7 +48,7 @@ async def process_export_prefix(
 async def process_ids(
     item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
-    path = item["@id"]
+    path = parse.unquote(item["@id"])
     cleanup_paths = get_paths_cleanup()
     for src, rpl in cleanup_paths:
         if src in path:
