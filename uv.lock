@@ -39,7 +39,7 @@ wheels = [
 [[package]]
 name = "collective-html2blocks"
 version = "1.0.0a0"
-source = { git = "https://github.com/collective/collective.html2blocks#2cf7aa683585a7e628c77c8e5fc769aa6ffa44a7" }
+source = { git = "https://github.com/collective/collective.html2blocks#3ba2d7e422c4f4113cafc6355b73facb431a6dc1" }
 dependencies = [
     { name = "beautifulsoup4" },
 ]
