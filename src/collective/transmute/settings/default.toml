@@ -47,7 +47,6 @@ export_prefixes = [
 ]
 
 [paths.cleanup]
-" " = "_"
 "/_" = "/"
 
 [paths.filter]

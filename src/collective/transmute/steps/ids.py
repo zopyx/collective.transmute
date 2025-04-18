@@ -48,7 +48,7 @@ async def process_export_prefix(
 async def process_ids(
     item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
-    path = parse.unquote(item["@id"])
+    path = parse.unquote(item["@id"].replace(" ", "_"))
     cleanup_paths = get_paths_cleanup()
     for src, rpl in cleanup_paths:
         if src in path:

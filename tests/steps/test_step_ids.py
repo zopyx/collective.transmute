@@ -25,6 +25,7 @@ async def test_process_export_prefix(metadata, base_item, path: str):
         [{"@id": "/foo", "id": "foo"}, "/foo", "foo"],
         [{"@id": "/%20foo", "id": " foo"}, "/foo", "foo"],
         [{"@id": "/ foo", "id": " foo"}, "/foo", "foo"],
+        [{"@id": "/-foo", "id": "-foo"}, "/foo", "foo"],
         [{"@id": "/_foo", "id": "_foo"}, "/foo", "foo"],
         [
             {"@id": "/_foo bar", "id": "_foo bar"},
