@@ -8,18 +8,24 @@ def _blocks_collection(item: dict, blocks: list[dict]) -> list[dict]:
     # TODO: Process query to remove old types
     query = item.get("query")
     if query:
+        querystring = {
+            "query": query,
+        }
+
+        if "sort_on" in item:
+            querystring["sort_on"] = item["sort_on"]
+
+        if "sort_order" in item:
+            querystring["sort_order"] = (
+                ("ascending" if item["sort_reversed"] == "" else "descending"),
+            )
+            querystring["sort_order_boolean"] = True
+
         block = {
             "@type": "listing",
             "headline": "",
             "headlineTag": "h2",
-            "querystring": {
-                "query": query,
-                "sort_on": item["sort_on"],
-                "sort_order": (
-                    "ascending" if item["sort_reversed"] == "" else "descending"
-                ),
-                "sort_order_boolean": True,
-            },
+            "querystring": querystring,
             "b_size": item.get("item_count", 10),
             "limit": item.get("limit", 1000),
             "styles": {},
