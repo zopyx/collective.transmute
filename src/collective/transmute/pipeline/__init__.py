@@ -39,9 +39,11 @@ async def _write_path_report(
         "src_path",
         "src_uid",
         "src_type",
+        "src_state",
         "dst_path",
         "dst_uid",
         "dst_type",
+        "dst_state",
         "last_step",
     ]
     dst = Path().cwd()
@@ -110,6 +112,7 @@ async def pipeline(
             "src_path": raw_item.get("@id"),
             "src_type": raw_item.get("@type"),
             "src_uid": raw_item.get("UID"),
+            "src_state": raw_item.get("review_state", "--"),
         }
         async for item, last_step, is_new in _pipeline(
             steps, raw_item, metadata, consoles
@@ -121,6 +124,7 @@ async def pipeline(
                 "dst_path": "--",
                 "dst_type": "--",
                 "dst_uid": "--",
+                "dst_state": "--",
                 "last_step": last_step,
             }
             if not item:
@@ -133,11 +137,13 @@ async def pipeline(
                 "dst_path": item.get("@id", "") or "",
                 "dst_type": item.get("@type", "") or "",
                 "dst_uid": item.get("UID", "") or "",
+                "dst_state": item.get("review_state", "--") or "--",
             }
             if is_new:
                 total += 1
                 src_item["src_type"] = "--"
                 src_item["src_uid"] = "--"
+                src_item["src_state"] = "--"
                 progress.total("processed", total)
 
             path_transforms.append(t.PipelineItemReport(**src_item, **dst_item))
