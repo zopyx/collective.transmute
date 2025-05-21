@@ -142,7 +142,7 @@ async def export_metadata(metadata: t.MetadataInfo, state: t.PipelineState) -> P
 
 def remove_data(path: Path, consoles: t.ConsoleArea | None = None):
     """Remove all data inside a given path."""
-    report = consoles.print if consoles else logger.debug
+    report = consoles.print_log if consoles else logger.debug
     contents: Generator[Path] = path.glob("*")
     for content in contents:
         if content.is_dir():

@@ -49,7 +49,9 @@ class ConsoleArea:
     def disable_ui(self):
         """Disable ui for the consoles."""
         self.ui = False
-        logger.addHandler(logging.StreamHandler())
+        console = logging.StreamHandler()
+        console.setLevel(logging.INFO)
+        logger.addHandler(console)
 
     def print(self, message: str, panel_id: str = "main") -> None:
         """Print to one of the consoles."""
@@ -64,6 +66,10 @@ class ConsoleArea:
         if self.ui:
             self.print(message, panel_id)
         logger.info(message)
+
+    def debug(self, message: str, panel_id: str = "main") -> None:
+        """Write a message to the debug logger."""
+        logger.debug(message)
 
 
 @dataclass

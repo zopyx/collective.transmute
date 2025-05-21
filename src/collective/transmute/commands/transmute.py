@@ -27,7 +27,7 @@ def _create_state(app_layout: layout.ApplicationLayout, total: int) -> t.Pipelin
 
 
 def _remove_existing_data(dst: Path, consoles: t.ConsoleArea):
-    consoles.print(f"Removing existing content in {dst}")
+    consoles.print_log(f"Removing existing content in {dst}")
     file_utils.remove_data(dst, consoles)
 
 

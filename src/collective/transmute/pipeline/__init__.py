@@ -50,7 +50,7 @@ async def _write_path_report(
     report_path = Path(dst / "report_transmute.csv").resolve()
     paths_data = state.path_transforms
     csv_path = await file_utils.csv_dump(paths_data, headers, report_path)
-    consoles.print(f" - Wrote paths report to {csv_path}")
+    consoles.print_log(f" - Wrote paths report to {csv_path}")
 
 
 async def _pipeline(
@@ -59,14 +59,17 @@ async def _pipeline(
     metadata: t.MetadataInfo,
     consoles: t.ConsoleArea,
 ) -> AsyncGenerator[tuple[t.PloneItem | None, str, bool]]:
+    src_uid = item["UID"]
     for step in steps:
+        step_name = step.__name__
         if not item:
+            consoles.debug(f"({src_uid}) - Step {step_name} - skipped")
             continue
         item_id = item["@id"]
         item_uid = item["UID"]
         is_folderish = item.get("is_folderish", False)
-        step_name = step.__name__
         add_to_drop = step_name not in pb_config.pipeline.do_not_add_drop
+        consoles.debug(f"({src_uid}) - Step {step_name} - started")
         result = step(item, metadata)
         async for item in result:
             if not item and is_folderish and add_to_drop:
@@ -76,10 +79,14 @@ async def _pipeline(
             elif item and item.pop("_is_new_item", False):
                 msg = f" - New: {item.get('UID')} (from {step_name} for {item_uid})"
                 consoles.print(msg)
+                consoles.debug(
+                    f"({src_uid}) - Step {step_name} - Produced {item.get('UID')}"
+                )
                 async for sub_item, last_step, _ in _pipeline(
                     steps, item, metadata, consoles
                 ):
                     yield sub_item, last_step, True
+        consoles.debug(f"({src_uid}) - Step {step_name} - finished")
     yield item, step_name, False
 
 
@@ -106,6 +113,7 @@ async def pipeline(
     uids = state.uids
     path_transforms = state.path_transforms
     paths: list[tuple[str, str]] = []
+    consoles.debug(f"Starting pipeline processing of {state.total} items")
     async for filename, raw_item in file_utils.json_reader(content_files):
         src_item = {
             "filename": filename,
@@ -114,6 +122,10 @@ async def pipeline(
             "src_uid": raw_item.get("UID"),
             "src_state": raw_item.get("review_state", "--"),
         }
+        consoles.debug(
+            f"({src_item['src_uid']}) - Filename {src_item['filename']} "
+            f"({processed + 1} / {total})"
+        )
         async for item, last_step, is_new in _pipeline(
             steps, raw_item, metadata, consoles
         ):
