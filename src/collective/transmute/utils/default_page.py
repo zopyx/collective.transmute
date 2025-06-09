@@ -1,0 +1,35 @@
+from collective.transmute import _types as t
+
+
+def _merge_items(
+    parent_item: t.PloneItem, item: t.PloneItem, keys_from_parent: set[str]
+) -> t.PloneItem:
+    filtered = {k: v for k, v in parent_item.items() if k in keys_from_parent}
+    # Keep old UID here
+    item["_UID"] = item.pop("UID")
+    # Populate nav_title from parent title
+    current_title = item.get("nav_title", item.get("title", ""))
+    item["nav_title"] = parent_item.get("title", current_title)
+    item.update(filtered)
+    return item
+
+
+def _handle_link(item: t.PloneItem) -> t.PloneItem:
+    """Handle default page by merging parent item into the current item."""
+    # If the default page item is a Link, we handle it differently
+    item.pop("layout", None)
+    remote_url = item.pop("remoteUrl")
+    text = {"data": f"<div><a href='{remote_url}'>{remote_url}</a></div>"}
+    item["@type"] = "Document"
+    item["text"] = text
+    return item
+
+
+def handle_default_page(
+    parent_item: t.PloneItem, item: t.PloneItem, keys_from_parent: set[str]
+) -> t.PloneItem:
+    """Handle default page by merging parent item into the current item."""
+    portal_type = item.get("portal_type")
+    if portal_type == "Link":
+        item = _handle_link(item)
+    return _merge_items(parent_item, item, keys_from_parent)
