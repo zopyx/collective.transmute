@@ -1,3 +1,11 @@
+"""
+Layout and UI components for collective.transmute.
+
+This module provides rich terminal UI components for displaying progress,
+reports, and status information during the data transformation process.
+It uses the Rich library to create beautiful, interactive terminal interfaces.
+"""
+
 from collective.transmute import _types as t
 from collective.transmute.utils import sort_data
 from rich.layout import Layout
@@ -11,12 +19,25 @@ from rich.table import Table
 
 
 class Header:
-    """Display header."""
+    """Display header for the application.
+    
+    Creates a header panel with the application title and current operation.
+    """
 
     def __init__(self, title: str):
+        """Initialize the header with a title.
+        
+        Args:
+            title: Title to display in the header
+        """
         self.title = title
 
     def __rich__(self) -> Panel:
+        """Render the header as a Rich panel.
+        
+        Returns:
+            Rich panel containing the header information
+        """
         grid = Table.grid(expand=True)
         grid.add_column(justify="center", ratio=1)
         grid.add_row("[b]collective.transmute[/b]")
@@ -25,13 +46,27 @@ class Header:
 
 
 class TransmuteReport:
-    """Report Metadata info."""
+    """Report metadata display component.
+    
+    Displays statistics and metadata information in a formatted panel.
+    """
 
     def __init__(self, data: dict[str, int], title: str):
+        """Initialize the report with data and title.
+        
+        Args:
+            data: Dictionary of data to display
+            title: Title for the report panel
+        """
         self.title = title
         self.data = data
 
     def __rich__(self) -> Panel:
+        """Render the report as a Rich panel.
+        
+        Returns:
+            Rich panel containing the report data
+        """
         grid = Table.grid(expand=True)
         grid.add_column(justify="left", ratio=2)
         grid.add_column(justify="right", ratio=1)
@@ -41,6 +76,16 @@ class TransmuteReport:
 
 
 def progress_panel(progress: t.PipelineProgress | t.ReportProgress) -> Panel:
+    """Create a progress panel for display.
+    
+    Creates a panel containing progress bars for tracking operation progress.
+    
+    Args:
+        progress: Progress tracking object
+        
+    Returns:
+        Rich panel containing progress information
+    """
     progress_table = Table.grid(expand=True)
     progress_table.add_row(progress.processed)
     if isinstance(progress, t.PipelineProgress):
@@ -53,35 +98,80 @@ def progress_panel(progress: t.PipelineProgress | t.ReportProgress) -> Panel:
 
 
 def create_consoles() -> t.ConsoleArea:
-    """Return a t.ConsoleArea object with two console objects."""
+    """Create console area with two console panels.
+    
+    Returns:
+        ConsoleArea object with main and side console panels
+    """
     main_console = t.ConsolePanel()
     side_console = t.ConsolePanel()
     return t.ConsoleArea(main_console, side_console)
 
 
 class ApplicationLayout:
+    """Base application layout class.
+    
+    Provides the foundation for different application layouts with
+    common functionality for progress tracking and layout management.
+    """
     title: str
     layout: Layout
     consoles: t.ConsoleArea
     progress: t.ReportProgress | t.PipelineProgress
 
     def __init__(self, title: str):
+        """Initialize the application layout.
+        
+        Args:
+            title: Title for the application
+        """
         self.consoles = create_consoles()
         self.layout = self._create_layout(title)
         self.title = title
 
     def _create_layout(self, title: str) -> Layout:
+        """Create the base layout structure.
+        
+        Args:
+            title: Title for the layout
+            
+        Returns:
+            Rich layout object
+        """
         return Layout(name="root")
 
     def update_layout(self, state: t.PipelineState | t.ReportState):
+        """Update the layout with current state.
+        
+        Args:
+            state: Current state object to display
+        """
         pass
 
     def initialize_progress(self, total: int):
+        """Initialize progress tracking.
+        
+        Args:
+            total: Total number of items to process
+        """
         pass
 
 
 class TransmuteLayout(ApplicationLayout):
+    """Layout for the main transmute operation.
+    
+    Provides a comprehensive layout for the data transformation process
+    with progress tracking, logging, and statistics display.
+    """
     def _create_layout(self, title: str) -> Layout:
+        """Create the transmute-specific layout.
+        
+        Args:
+            title: Title for the layout
+            
+        Returns:
+            Rich layout object configured for transmute operations
+        """
         consoles = self.consoles
         layout = Layout(name="root")
         layout.split(
@@ -106,7 +196,11 @@ class TransmuteLayout(ApplicationLayout):
         return layout
 
     def update_layout(self, state: t.PipelineState):
-        """Update layout."""
+        """Update the layout with current pipeline state.
+        
+        Args:
+            state: Current pipeline state to display
+        """
         layout = self.layout
         layout["footer"].update(progress_panel(state.progress))
         grid = Table.grid(expand=True)
@@ -122,6 +216,11 @@ class TransmuteLayout(ApplicationLayout):
         )
 
     def initialize_progress(self, total: int):
+        """Initialize progress tracking for transmute operations.
+        
+        Args:
+            total: Total number of items to process
+        """
         processed = Progress(
             "{task.description}",
             SpinnerColumn(),
@@ -143,7 +242,20 @@ class TransmuteLayout(ApplicationLayout):
 
 
 class ReportLayout(ApplicationLayout):
+    """Layout for report generation operations.
+    
+    Provides a layout optimized for displaying report information
+    with statistics and progress tracking.
+    """
     def _create_layout(self, title: str) -> Layout:
+        """Create the report-specific layout.
+        
+        Args:
+            title: Title for the layout
+            
+        Returns:
+            Rich layout object configured for report operations
+        """
         consoles = self.consoles
         layout = Layout(name="root")
         layout.split(
@@ -165,7 +277,11 @@ class ReportLayout(ApplicationLayout):
         return layout
 
     def update_layout(self, state: t.ReportState):
-        """Update layout."""
+        """Update the layout with current report state.
+        
+        Args:
+            state: Current report state to display
+        """
         layout = self.layout
         layout["footer"].update(progress_panel(state.progress))
         grid = Table.grid(expand=True)
@@ -186,6 +302,11 @@ class ReportLayout(ApplicationLayout):
         )
 
     def initialize_progress(self, total: int):
+        """Initialize progress tracking for report operations.
+        
+        Args:
+            total: Total number of items to process
+        """
         processed = Progress(
             "{task.description}",
             SpinnerColumn(),
@@ -201,10 +322,20 @@ class ReportLayout(ApplicationLayout):
 
 
 def live(app_layout: ApplicationLayout, redirect_stderr: bool = True) -> Live:
-    """Return a rich.live.Live instance for a given layout."""
+    """Create a live display for the application layout.
+    
+    Creates a live updating display that shows the current state of the
+    application layout in real-time.
+    
+    Args:
+        app_layout: Application layout to display
+        redirect_stderr: Whether to redirect stderr to the display
+        
+    Returns:
+        Rich Live display object
+    """
     return Live(
         app_layout.layout,
-        refresh_per_second=10,
-        screen=True,
+        refresh_per_second=4,
         redirect_stderr=redirect_stderr,
     )

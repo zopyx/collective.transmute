@@ -1,10 +1,30 @@
+"""
+Block processing step for collective.transmute.
+
+This module handles the transformation of content blocks from legacy Plone
+format to modern Volto blocks format. It processes different types of content
+including collections, topics, and folders, converting them to appropriate
+block structures.
+"""
+
 from collective.html2blocks.converter import volto_blocks
 from collective.transmute import _types as t
 from collective.transmute.settings import pb_config
 
 
 def _blocks_collection(item: dict, blocks: list[dict]) -> list[dict]:
-    """Add a listing block."""
+    """Add a listing block for collection/topic content.
+    
+    Processes collection and topic items by converting their query parameters
+    and display settings into a listing block configuration.
+    
+    Args:
+        item: The collection/topic item to process
+        blocks: List of existing blocks to append to
+        
+    Returns:
+        Updated list of blocks with the new listing block
+    """
     # TODO: Process query to remove old types
     query = item.get("query")
     if query:
@@ -36,7 +56,18 @@ def _blocks_collection(item: dict, blocks: list[dict]) -> list[dict]:
 
 
 def _blocks_folder(item: dict, blocks: list[dict]) -> list[dict]:
-    """Adds a listing block."""
+    """Add a listing block for folder content.
+    
+    Processes folder items by converting their layout settings into
+    appropriate listing block variations.
+    
+    Args:
+        item: The folder item to process
+        blocks: List of existing blocks to append to
+        
+    Returns:
+        Updated list of blocks with the new listing block
+    """
     possible_variations = {
         "listing_view": "listing",
         "summary_view": "summary",
@@ -72,6 +103,19 @@ BLOCKS_ORIG_TYPE = {
 def _get_default_blocks(
     type_: str, has_image: bool, has_description: bool
 ) -> list[dict]:
+    """Get default blocks for a content type.
+    
+    Retrieves and filters default blocks based on content type and
+    available content (image, description).
+    
+    Args:
+        type_: Content type name
+        has_image: Whether the item has an image
+        has_description: Whether the item has a description
+        
+    Returns:
+        List of default blocks for the content type
+    """
     type_info = pb_config.types.get(type_, {})
     default_blocks = type_info.get("override_blocks", type_info.get("blocks", None))
     blocks = [b.to_dict() for b in default_blocks] if default_blocks else []
@@ -90,6 +134,19 @@ def _get_default_blocks(
 async def process_blocks(
     item: t.PloneItem, metadata: t.MetadataInfo
 ) -> t.PloneItemGenerator:
+    """Process content blocks for a Plone item.
+    
+    Main pipeline step that converts legacy Plone content into modern
+    Volto blocks format. Handles different content types and applies
+    appropriate transformations.
+    
+    Args:
+        item: The Plone item to process
+        metadata: Metadata information for the transformation
+        
+    Yields:
+        The processed item with updated block structure
+    """
     type_ = item["@type"]
     has_image = bool(item.get("image"))
     has_description = has_description = bool(
