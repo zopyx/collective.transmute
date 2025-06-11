@@ -1,3 +1,12 @@
+"""
+Core pipeline processing module for collective.transmute.
+
+This module contains the main pipeline logic for transforming data from
+collective.exportimport format to plone.exportimport format. It provides
+the central processing engine that orchestrates the transformation steps
+and manages the overall state of the transformation process.
+"""
+
 from collections.abc import AsyncGenerator
 from collective.transmute import _types as t
 from collective.transmute.settings import is_debug
@@ -11,6 +20,15 @@ from pathlib import Path
 
 
 def _add_to_drop(path: str) -> None:
+    """Add a path to the drop list for filtering.
+    
+    This function checks if a path should be added to the drop list based on
+    the configured path filters. It ensures that parent paths are properly
+    handled for dropping child objects.
+    
+    Args:
+        path: The path to potentially add to the drop list
+    """
     parents = item_utils.all_parents_for(path)
     valid_path = parents & pb_config.paths.filter.allowed
     if not valid_path:
@@ -21,6 +39,15 @@ def _add_to_drop(path: str) -> None:
 
 
 def _report_final_state(consoles: t.ConsoleArea, state: t.PipelineState):
+    """Report the final state of the pipeline processing.
+    
+    Displays summary statistics about the transformation process including
+    total items processed, items exported by type, and items dropped by step.
+    
+    Args:
+        consoles: Console area for output display
+        state: Current pipeline state containing statistics
+    """
     consoles.print_log("Converted")
     consoles.print_log(f"  - Total: {len(state.seen)}")
     for name, total in sort_data(state.exported):
@@ -34,6 +61,16 @@ async def _write_path_report(
     state: t.PipelineState,
     consoles: t.ConsoleArea,
 ):
+    """Write a CSV report of path transformations.
+    
+    Creates a detailed CSV report showing the transformation of each item
+    from source to destination format, including paths, UIDs, types, and
+    processing steps.
+    
+    Args:
+        state: Pipeline state containing transformation data
+        consoles: Console area for output display
+    """
     headers = [
         "filename",
         "src_path",
@@ -59,6 +96,21 @@ async def _pipeline(
     metadata: t.MetadataInfo,
     consoles: t.ConsoleArea,
 ) -> AsyncGenerator[tuple[t.PloneItem | None, str, bool]]:
+    """Execute the transformation pipeline for a single item.
+    
+    Processes an item through all configured transformation steps, handling
+    both successful transformations and dropped items. Supports recursive
+    processing for newly created items.
+    
+    Args:
+        steps: Tuple of pipeline step functions to execute
+        item: The item to transform
+        metadata: Metadata information for the transformation
+        consoles: Console area for output display
+        
+    Yields:
+        Tuple of (transformed_item, last_step_name, is_new_item)
+    """
     src_uid = item["UID"]
     for step in steps:
         step_name = step.__name__
@@ -97,6 +149,22 @@ async def pipeline(
     write_report: bool,
     consoles: t.ConsoleArea,
 ):
+    """Main pipeline function for data transformation.
+    
+    Orchestrates the complete transformation process from source files to
+    destination format. This is the main entry point for the transformation
+    pipeline that processes all content files and generates the final output.
+    
+    Args:
+        src_files: Source file paths (metadata and content)
+        dst: Destination directory path
+        state: Pipeline state for tracking progress and statistics
+        write_report: Whether to write a detailed CSV report
+        consoles: Console area for output display
+        
+    Returns:
+        Path to the generated metadata file
+    """
     content_folder = dst / "content"
     metadata: t.MetadataInfo = await ei_utils.initialize_metadata(
         src_files, content_folder
