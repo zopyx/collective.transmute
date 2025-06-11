@@ -1,0 +1,30 @@
+# Test dependencies for collective.transmute examples
+
+# Core testing framework
+pytest>=7.0.0
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Additional testing utilities
+pytest-xdist>=3.0.0  # For parallel test execution
+pytest-timeout>=2.1.0  # For test timeout handling
+pytest-randomly>=3.12.0  # For random test ordering
+
+# Coverage reporting
+coverage>=7.0.0
+
+# Mocking and stubbing
+responses>=0.23.0  # For HTTP request mocking
+freezegun>=1.2.0  # For time mocking
+
+# Development utilities
+black>=23.0.0  # Code formatting
+flake8>=6.0.0  # Linting
+mypy>=1.0.0  # Type checking
+
+# Documentation testing
+doctest-ignore-unicode>=0.1.2
+
+# Performance testing
+pytest-benchmark>=4.0.0 
