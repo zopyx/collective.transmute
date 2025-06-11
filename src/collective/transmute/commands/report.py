@@ -1,3 +1,11 @@
+"""
+Report generation command for collective.transmute.
+
+This module provides the CLI command for generating detailed reports about
+source data, including statistics on content types, creators, review states,
+and layout information.
+"""
+
 from collections import defaultdict
 from collections.abc import Iterator
 from collective.transmute import _types as t
@@ -18,7 +26,18 @@ app = typer.Typer()
 def _create_state(
     app_layout: layout.ApplicationLayout, files: Iterator
 ) -> t.ReportState:
-    """Initialize a ReportState object."""
+    """Initialize a ReportState object.
+    
+    Creates a new report state object with progress tracking and statistics
+    containers for monitoring the report generation process.
+    
+    Args:
+        app_layout: Application layout for UI components
+        files: Iterator of files to process
+        
+    Returns:
+        Initialized ReportState object
+    """
     total = len(list(files))
     app_layout.initialize_progress(total)
     return t.ReportState(
@@ -33,6 +52,19 @@ def _create_state(
 
 
 async def _create_report(dst: Path, state: t.ReportState, report_types: list) -> Path:
+    """Create detailed reports from source data.
+    
+    Processes all source files to generate comprehensive reports including
+    statistics and detailed information for specified content types.
+    
+    Args:
+        dst: Destination directory for reports
+        state: Report state containing statistics and progress tracking
+        report_types: List of content types to generate detailed reports for
+        
+    Returns:
+        Path to the main report file
+    """
     async for _, item in file_utils.json_reader(state.files):
         type_ = item.get("@type")
         state.types[type_] += 1
@@ -71,6 +103,17 @@ async def _create_report(dst: Path, state: t.ReportState, report_types: list) ->
 
 
 def parse_report_types(value: str) -> list[str]:
+    """Parse comma-separated report types string.
+    
+    Converts a comma-separated string of content types into a list
+    for detailed reporting.
+    
+    Args:
+        value: Comma-separated string of content types
+        
+    Returns:
+        List of content type names
+    """
     types = []
     if raw_types := value.split(","):
         types = [v.strip() for v in raw_types]
@@ -91,7 +134,17 @@ def report(
         ),
     ] = "",
 ):
-    """Generates a json file with a report of export data in src directory."""
+    """Generate a comprehensive report of export data.
+    
+    Analyzes source data and generates detailed reports including statistics
+    on content types, creators, review states, and layout information.
+    Optionally generates detailed CSV reports for specific content types.
+    
+    Args:
+        src: Source directory containing export data
+        dst: Destination directory for reports (defaults to current directory)
+        report_types_: Comma-separated list of content types for detailed reporting
+    """
     if not file_utils.check_path(src):
         raise RuntimeError(f"{src} does not exist")
     if not dst or not file_utils.check_path(dst):
